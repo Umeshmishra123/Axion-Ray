@@ -180,8 +180,7 @@ output_path = 'Tagged_Task_Data.xlsx'
 task_data_clean.to_excel(output_path, index=False)
 print(f"Tagged dataset saved to {output_path}")
 
-"""Summary Report
-Include the following points in your report:
+"""Summary Report"""
 
 Approach to Tagging:
 
