@@ -45,7 +45,7 @@ Installation
 Clone the repository:
 bash
 Copy code
-git clone https://github.com/yourusername/assignment-analysis.git
+git clone https://github.com/Umeshmishra123/Axion-Ray
 Navigate to the project directory:
 bash
 Copy code
