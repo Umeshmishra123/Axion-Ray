@@ -1,334 +1,93 @@
-Python script that you can use for the analysis, including data cleaning, text preprocessing, keyword extraction, and generating visualizations:
-import pandas as pd
-import numpy as np
-import re
-import nltk
-from fuzzywuzzy import process, fuzz
-from nltk.corpus import stopwords
-from collections import Counter
-import seaborn as sns
-import matplotlib.pyplot as plt
-from wordcloud import WordCloud
-
-# Load your dataset
-data = pd.read_excel('Task 2.xlsx')
-
-# Data Cleaning
-# 1. Fill missing values in categorical columns with mode
-categorical_cols = data.select_dtypes(include=['object']).columns
-
-for col in categorical_cols:
-    
-    data[col] = data[col].fillna(data[col].mode()[0])
-
-# 2. Handle inconsistencies in categorical columns (e.g., typos, inconsistent capitalization)
-def preprocess_text(text):
-    
-    if pd.isnull(text):
-        
-        return ""
-    
-    text = str(text)  # Convert to string if not already
-    
-    text = re.sub(r'[^a-zA-Z\s]', '', text)  # Remove non-alphabetic characters
-    
-    text = text.lower()  # Convert to lowercase
-    
-    words = [word for word in text.split() if word not in stopwords.words('english')]  # Remove stopwords
-    
-    return " ".join(words)
-
-# Apply text preprocessing to all categorical columns
-
-for col in categorical_cols:
-    
-    data[col] = data[col].apply(preprocess_text)
-
-# 3. Handle numerical columns
-
-numerical_cols = data.select_dtypes(include=['number']).columns
-
-for col in numerical_cols:
-    
-    # Handle missing numerical values (if any)
-    
-    data[col] = data[col].fillna(data[col].median())
-
-# Visualizing Data
-# Trend of repairs over time (if applicable)
-if 'REPAIR_MONTH' in data.columns and 'Repair Count' in data.columns:
-    
-    repair_trend = data.groupby('REPAIR_MONTH').agg({'Repair Count': 'sum'}).reset_index()
-    
-    plt.figure(figsize=(14, 7))
-    
-    sns.lineplot(data=repair_trend, x='REPAIR_MONTH', y='Repair Count', marker='o')
-    
-    plt.title('Trend of Repairs Over Time')
-    
-    plt.xlabel('Repair Month')
-    
-    plt.ylabel('Repair Count')
-    
-    plt.show()
-
-# Word Cloud for Text Fields
-
-def generate_wordcloud(text_column):
-    
-    text = " ".join(text_column.dropna())
-    
-    wordcloud = WordCloud(width=800, height=400, background_color="white").generate(text)
-    
-    plt.figure(figsize=(12, 8))
-    
-    plt.imshow(wordcloud, interpolation="bilinear")
-    
-    plt.axis("off")
-    
-    plt.show()
-
-# Generate word cloud for all categorical columns
-
-for col in categorical_cols:
-    
-    generate_wordcloud(data[col])
-
-# Keyword extraction (Example with the most frequent words)
-
-def extract_keywords(text_column, top_n=10):
-    
-    words = " ".join(text_column.dropna()).split()
-    
-    word_counts = Counter(words)
-    
-    return word_counts.most_common(top_n)
+Assignment Analysis
 
-# Extract top 10 keywords for a specific column (e.g., "Issue Description")
+This repository contains the analysis and insights derived from a dataset as part of an assignment. The project involves identifying critical data columns, generating meaningful features from free-text fields, and summarizing insights for stakeholders.
 
-if 'Issue Description' in data.columns:
-    
-    keywords = extract_keywords(data['Issue Description'], top_n=10)
-    
-    print("Top 10 Keywords in 'Issue Description':")
-    
-    print(keywords)
+Project Structure
 
-# Tag Generation Example (fuzzy matching)
+Dataset: The dataset used for this analysis is included as Task 2.xlsx.
 
-def generate_tags(text_column):
-    
-    unique_values = text_column.dropna().unique()
-    
-    standardized_values = {}
-    
-    for val in unique_values:
-        
-        standardized_values[val] = process.extractOne(val, unique_values, scorer=fuzz.token_sort_ratio)[0]
-    
-    return standardized_values
+Scripts: Python scripts for data processing, visualization, and insights generation.
 
-# Apply fuzzy matching to a categorical column
+Results: Generated visualizations and insights from the analysis.
 
-if 'Issue Description' in data.columns:
-    
-    tags = generate_tags(data['Issue Description'])
-    
-    data['Issue Tags'] = data['Issue Description'].map(tags)
+Objectives
 
-# Save the cleaned data with tags to CSV
+Identifying Critical Columns:
 
-data.to_csv('cleaned_data_with_tags.csv', index=False)
+Select top 5 columns that provide significant insights.
 
-# Print a sample of the cleaned data with tags
+Justify the choice of columns based on their importance to stakeholders.
 
-print(data.head())
+Generate at least 3 visualizations to represent these insights.
 
-# Save the Python script itself
+Generating Tags/Features from Free Text:
 
-script_code = '''
+Extract meaningful tags from the free-text fields, summarizing key themes.
 
-import pandas as pd
+Examples include identifying failure conditions or components.
 
-import numpy as np
+Summary and Insights:
 
-import re
+Write a summary of tags generated and the potential insights derived.
 
-import nltk
+Provide actionable recommendations for stakeholders.
 
-from fuzzywuzzy import process, fuzz
+Highlight any discrepancies in the dataset (e.g., null values, missing keys) and how they were addressed.
 
-from nltk.corpus import stopwords
+Setup and Requirements
+Prerequisites
+Python 3.x
 
-from collections import Counter
+Required libraries: pandas, matplotlib, seaborn, numpy
 
-import seaborn as sns
+Installation
 
-import matplotlib.pyplot as plt
+Clone the repository:
+bash
+Copy code
+git clone https://github.com/yourusername/assignment-analysis.git
+Navigate to the project directory:
+bash
+Copy code
+cd assignment-analysis
 
-from wordcloud import WordCloud
+Install required dependencies:
+bash
 
-# Load your dataset
+Copy code
 
-data = pd.read_excel('Task 2.xlsx')
+pip install -r requirements.txt
 
-# Data Cleaning
-# 1. Fill missing values in categorical columns with mode
+Running the Scripts
 
-categorical_cols = data.select_dtypes(include=['object']).columns
+Place the dataset (Task 2.xlsx) in the root directory.
 
-for col in categorical_cols:
+Run the analysis script:
+bash
 
-    data[col] = data[col].fillna(data[col].mode()[0])
+Copy code
 
-# 2. Handle inconsistencies in categorical columns (e.g., typos, inconsistent capitalization)
+python analysis.py
 
-def preprocess_text(text):
-    
-    if pd.isnull(text):
-        
-        return ""
-    
-    text = str(text)  # Convert to string if not already
-    
-    text = re.sub(r'[^a-zA-Z\s]', '', text)  # Remove non-alphabetic characters
-    
-    text = text.lower()  # Convert to lowercase
-    
-    words = [word for word in text.split() if word not in stopwords.words('english')]  # Remove stopwords
-    
-    return " ".join(words)
+Outputs (visualizations and summaries) will be saved in the results/ directory.
+Key Findings
 
-# Apply text preprocessing to all categorical columns
+Trend Analysis: Repair activity trends over time revealed peaks requiring resource allocation.
 
-for col in categorical_cols:
-    
-    data[col] = data[col].apply(preprocess_text)
+Cost Analysis: Insights into repair costs provided clarity on high-cost incidents.
 
-# 3. Handle numerical columns
+Text Analysis: Generated tags highlighted recurring issues and common resolutions.
 
-numerical_cols = data.select_dtypes(include=['number']).columns
+Recommendations
 
-for col in numerical_cols:
-    
-    # Handle missing numerical values (if any)
-    
-    data[col] = data[col].fillna(data[col].median())
+Monitor peak repair periods to allocate resources effectively.
 
-# Visualizing Data
-# Trend of repairs over time (if applicable)
+Investigate recurring high-cost repairs for potential cost-saving measures.
 
-if 'REPAIR_MONTH' in data.columns and 'Repair Count' in data.columns:
-    
-    repair_trend = data.groupby('REPAIR_MONTH').agg({'Repair Count': 'sum'}).reset_index()
-    
-    plt.figure(figsize=(14, 7))
-    
-    sns.lineplot(data=repair_trend, x='REPAIR_MONTH', y='Repair Count', marker='o')
-    
-    plt.title('Trend of Repairs Over Time')
-    
-    plt.xlabel('Repair Month')
-    
-    plt.ylabel('Repair Count')
-    
-    plt.show()
+Enhance customer support based on recurring complaints and resolutions.
 
+Discrepancies and Approach
 
-# Word Cloud for Text Fields
+Null Values: Managed using imputation and filtering techniques.
 
-def generate_wordcloud(text_column):
-    
-    text = " ".join(text_column.dropna())
-    
-    wordcloud = WordCloud(width=800, height=400, background_color="white").generate(text)
-    
-    plt.figure(figsize=(12, 8))
-    
-    plt.imshow(wordcloud, interpolation="bilinear")
-    
-    plt.axis("off")
-    
-    plt.show()
-
-# Generate word cloud for all categorical columns
-
-for col in categorical_cols:
-    
-    generate_wordcloud(data[col])
-
-# Keyword extraction (Example with the most frequent words)
-
-def extract_keywords(text_column, top_n=10):
-    
-    words = " ".join(text_column.dropna()).split()
-    
-    word_counts = Counter(words)
-    
-    return word_counts.most_common(top_n)
-
-# Extract top 10 keywords for a specific column (e.g., "Issue Description")
-
-if 'Issue Description' in data.columns:
-    
-    keywords = extract_keywords(data['Issue Description'], top_n=10)
-    
-    print("Top 10 Keywords in 'Issue Description':")
-    
-    print(keywords)
-
-# Tag Generation Example (fuzzy matching)
-
-def generate_tags(text_column):
-    
-    unique_values = text_column.dropna().unique()
-    
-    standardized_values = {}
-    
-    for val in unique_values:
-    
-        standardized_values[val] = process.extractOne(val, unique_values, scorer=fuzz.token_sort_ratio)[0]
-    
-    return standardized_values
-
-# Apply fuzzy matching to a categorical column
-
-if 'Issue Description' in data.columns:
-    
-    tags = generate_tags(data['Issue Description'])
-    
-    data['Issue Tags'] = data['Issue Description'].map(tags)
-
-# Save the cleaned data with tags to CSV
-
-data.to_csv('cleaned_data_with_tags.csv', index=False)
-
-# Print a sample of the cleaned data with tags
-
-print(data.head())
-'''
-
-# Save the script to a file
-
-with open('analysis_script.py', 'w') as file:
-
-    file.write(script_code)
-
-
-print("Script and CSV file have been generated.")
-
-
-What this script does:
-Data Cleaning:
-
-Fills missing values in categorical columns with the mode (most frequent value).
-Handles text preprocessing (removes non-alphabetic characters, converts to lowercase, and removes stopwords).
-Fills missing values in numerical columns with the median.
-Data Visualizations:
-
-Creates a trend plot of repairs over time (if applicable).
-Generates word clouds for text columns like "Issue Description".
-Tag Generation:
-
-Applies fuzzy matching to clean up and standardize text values (e.g., "Issue Description").
-Creates a new "Issue Tags" column to store standardized tags.
+Missing Keys: Ensured data integrity by verifying primary keys where applicable.
